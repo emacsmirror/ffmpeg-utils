@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-07-04 21:48:38 stardiviner>
+;;; Time-stamp: <2020-07-04 23:13:22 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1"))
@@ -75,19 +75,29 @@
 
 ;;; NOTE Because ffmpeg command option "-t" accept seconds like 57 as value.
 
-(defun ffmpeg--subtract-timestamps-2 (start-timestamp end-timestamp)
-  "Subtract END-TIMESTAMP with START-TIMESTAMP."
-  (let ((start-time (mapcar #'string-to-number (split-string start-timestamp ":")))
-        (end-time (mapcar #'string-to-number (split-string end-timestamp ":")))
-        (start 0)
-        (end 0))
-    (dolist (time start-time)
-      (setq start (+ time (* start 60))))
-    (dolist (time end-time)
-      (setq end (+ time (* end 60))))
-    (- end start)))
+;; (defun ffmpeg--subtract-timestamps-2 (start-timestamp end-timestamp)
+;;   "Subtract END-TIMESTAMP with START-TIMESTAMP."
+;;   (let ((start-time (mapcar #'string-to-number (split-string start-timestamp ":")))
+;;         (end-time (mapcar #'string-to-number (split-string end-timestamp ":")))
+;;         (start 0)
+;;         (end 0))
+;;     (dolist (time start-time)
+;;       (setq start (+ time (* start 60))))
+;;     (dolist (time end-time)
+;;       (setq end (+ time (* end 60))))
+;;     (- end start)))
 
 ;; (ffmpeg--subtract-timestamps-2 "00:11:25" "00:12:12")
+
+(defun ffmpeg--subtract-timestamps-3 (start-timestamp end-timestamp)
+  "Subtract END-TIMESTAMP with START-TIMESTAMP."
+  (time-subtract
+   (encode-time (parse-time-string
+                 (concat "2020-01-01T" end-timestamp)))
+   (encode-time (parse-time-string
+                 (concat "2020-01-01T" start-timestamp)))))
+
+;; (ffmpeg--subtract-timestamps-3 "00:11:25" "00:12:12")
 
 (defun ffmpeg-cut-clip (input-filename start-timestamp end-timestamp output-filename)
   "Cut clip of media INPUT-FILENAME between START-TIMESTAMP END-TIMESTAMP and output to OUTPUT-FILENAME."
@@ -102,7 +112,7 @@
    :command (list "ffmpeg"
                   "-i" input-filename
                   "-ss" start-timestamp
-                  "-t" (ffmpeg--subtract-timestamps-2 start-timestamp end-timestamp)
+                  "-t" (ffmpeg--subtract-timestamps-3 start-timestamp end-timestamp)
                   "-codec" "copy"
                   output-filename)
    :buffer "*ffmpeg-cut-clip*"
