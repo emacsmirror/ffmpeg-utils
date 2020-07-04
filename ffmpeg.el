@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-07-04 23:13:22 stardiviner>
+;;; Time-stamp: <2020-07-04 23:20:35 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1"))
@@ -34,20 +34,14 @@
   (let ((hour (car number-list))
         (minute (cadr number-list))
         (second (caddr number-list)))
-    (if (zerop hour)
-        (setf hour "00")
-      (setf hour (number-to-string hour)))
-    (if (< minute 10)
-        (setf minute (concat "0" (number-to-string minute)))
-      (setf minute (number-to-string minute)))
-    (if (< second 10)
-        (setf second (concat "0" (number-to-string second)))
-      (setf second (number-to-string second)))
-    (format "%s:%s:%s" hour minute second)))
+    (mapconcat 'concat (mapcar
+                        (lambda (num)
+                          (format "%02d" num))
+                        (list hour minute second)) ":")))
 
 ;; (ffmpeg--convert-number-list-to-timestamp '(0 0 12))
 
-(defun ffmpeg--subtract-timestamps (start-timestamp end-timestamp)
+(defun ffmpeg--subtract-timestamps-1 (start-timestamp end-timestamp)
   "Subtract END-TIMESTAMP with START-TIMESTAMP."
   (let* ((start-t (mapcar 'string-to-number (split-string start-timestamp ":")))
          (start-hour (car start-t))
@@ -71,7 +65,7 @@
                              (caddr subtract-t))))
     (ffmpeg--convert-number-list-to-timestamp subtract-t)))
 
-;; (ffmpeg--subtract-timestamps "00:11:25" "00:12:12")
+;; (ffmpeg--subtract-timestamps-1 "00:11:25" "00:12:12")
 
 ;;; NOTE Because ffmpeg command option "-t" accept seconds like 57 as value.
 
