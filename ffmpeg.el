@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-07-04 23:21:44 stardiviner>
+;;; Time-stamp: <2020-07-07 04:49:57 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1"))
@@ -29,6 +29,15 @@
 
 ;;; Code:
 
+(defun ffmpeg--run-command (arglist)
+  "Construct ffmpeg command with ARGLIST and BODY."
+  (make-process
+   :name "ffmpeg"
+   :command (append '("ffmpeg") arglist) ; <------------- problem here
+   :buffer "*ffmpeg*"
+   :sentinel (lambda (_ __)
+               (message "FFmpeg process finished."))))
+
 ;;; NOTE Because ffmpeg command option "-t" accept seconds like 57 as value.
 (defun ffmpeg--subtract-timestamps (start-timestamp end-timestamp)
   "Subtract END-TIMESTAMP with START-TIMESTAMP."
@@ -47,18 +56,13 @@
                 (read-string "FFmpeg start timestamp: ")
                 (read-string "FFmpeg end timestamp: ")
                 (read-file-name "FFmpeg output filename: ")))
-  (make-process
-   :name "ffmpeg cut clip"
-   ;; "ffmpeg -i input-filename -ss start-timestamp -t time-timestamp -codec copy output-filename"
-   :command (list "ffmpeg"
-                  "-i" input-filename
-                  "-ss" start-timestamp
-                  "-t" (ffmpeg--subtract-timestamps start-timestamp end-timestamp)
-                  "-codec" "copy"
-                  output-filename)
-   :buffer "*ffmpeg-cut-clip*"
-   :sentinel (lambda (_ __)
-               (message "FFmpeg cut video clip process finished."))))
+  ;; "ffmpeg -i input-filename -ss start-timestamp -t time-timestamp -codec copy output-filename"
+  (ffmpeg--run-command
+   `("-i" ,input-filename
+     "-ss" ,start-timestamp
+     "-t" ,(number-to-string (ffmpeg--subtract-timestamps start-timestamp end-timestamp))
+     "-codec" "copy"
+     ,output-filename)))
 
 
 
