@@ -1,9 +1,9 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-07-07 04:49:57 stardiviner>
+;;; Time-stamp: <2020-08-28 18:07:26 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
-;; Package-Requires: ((emacs "25.1"))
+;; Package-Requires: ((emacs "25.1") (notifications "1.2"))
 ;; Package-Version: 0.1
 ;; Keywords: multimedia
 ;; homepage: https://github.com/stardiviner/ffmpeg.el
@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 'notifications)
+
 (defun ffmpeg--run-command (arglist)
   "Construct ffmpeg command with ARGLIST and BODY."
   (make-process
@@ -36,6 +38,7 @@
    :command (append '("ffmpeg") arglist) ; <------------- problem here
    :buffer "*ffmpeg*"
    :sentinel (lambda (_ __)
+               (notifications-notify :title "ffmpeg.el" :body "ffmpeg cut process finished")
                (message "FFmpeg process finished."))))
 
 ;;; NOTE Because ffmpeg command option "-t" accept seconds like 57 as value.
