@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-08-28 18:07:26 stardiviner>
+;;; Time-stamp: <2020-08-29 09:15:17 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1") (notifications "1.2"))
@@ -59,13 +59,24 @@
                 (read-string "FFmpeg start timestamp: ")
                 (read-string "FFmpeg end timestamp: ")
                 (read-file-name "FFmpeg output filename: ")))
-  ;; "ffmpeg -i input-filename -ss start-timestamp -t time-timestamp -codec copy output-filename"
-  (ffmpeg--run-command
-   `("-i" ,input-filename
-     "-ss" ,start-timestamp
-     "-t" ,(number-to-string (ffmpeg--subtract-timestamps start-timestamp end-timestamp))
-     "-codec" "copy"
-     ,output-filename)))
+  (let ((input-type (file-name-extension input-filename))
+        (output-type (file-name-extension output-filename)))
+    (if output-type
+        ;; output filename specified video file extension.
+        (if (string-equal output-type input-type) ; if output extension is same as input
+            output-filename ; keep output original extension
+          (if (yes-or-no-p "Whether keep output video format extension? ")
+              output-filename
+            (setq output-filename (format "%s.%s" (file-name-sans-extension output-filename) input-type))))
+      ;; output filename has NOT specific video file extension.
+      (setq output-filename (format "%s.%s" output-filename input-type)))
+    ;; "ffmpeg -i input-filename -ss start-timestamp -t time-timestamp -codec copy output-filename"
+    (ffmpeg--run-command
+     `("-i" ,input-filename
+       "-ss" ,start-timestamp
+       "-t" ,(number-to-string (ffmpeg--subtract-timestamps start-timestamp end-timestamp))
+       "-codec" "copy"
+       ,output-filename))))
 
 
 
