@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-10-08 19:10:05 stardiviner>
+;;; Time-stamp: <2020-10-08 19:20:50 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1") (notifications "1.2"))
@@ -38,8 +38,17 @@
    :command (append '("ffmpeg") arglist) ; <------------- problem here
    :buffer "*ffmpeg*"
    :sentinel (lambda (_ __)
+               (setq mode-line-process nil)
                (notifications-notify :title "ffmpeg.el" :body "ffmpeg cut process finished")
                (message "FFmpeg process finished."))))
+
+(defun ffmpeg-mode-line-running-indicator (msg)
+  "Display a running indicator on mode-line."
+  (setq mode-line-process
+        (concat " "
+                (propertize (or msg "ffmpeg running...")
+                            'font-lock-face 'mode-line-highlight)))
+  (force-mode-line-update t))
 
 ;;; NOTE Because ffmpeg command option "-t" accept seconds like 57 as value.
 (defun ffmpeg--subtract-timestamps (start-timestamp end-timestamp)
@@ -73,6 +82,7 @@
                   (read-string "FFmpeg end timestamp: ")
                   (read-file-name "FFmpeg output filename: "))))
   (deactivate-mark)
+  (ffmpeg-mode-line-running-indicator "ffmpeg cut video clip")
   (let ((input-type (file-name-extension input-filename))
         (output-type (file-name-extension output-filename)))
     (if output-type
