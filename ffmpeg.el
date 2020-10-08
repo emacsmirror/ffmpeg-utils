@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-08-29 09:15:17 stardiviner>
+;;; Time-stamp: <2020-10-08 19:10:05 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1") (notifications "1.2"))
@@ -54,17 +54,31 @@
 
 (defun ffmpeg-cut-clip (input-filename start-timestamp end-timestamp output-filename)
   "Cut clip of media INPUT-FILENAME between START-TIMESTAMP END-TIMESTAMP and output to OUTPUT-FILENAME."
-  (interactive (list
-                (read-file-name "FFmpeg input filename: ")
-                (read-string "FFmpeg start timestamp: ")
-                (read-string "FFmpeg end timestamp: ")
-                (read-file-name "FFmpeg output filename: ")))
+  (interactive (if (region-active-p)
+                   ;; 00:17:23 -- 00:21:45
+                   ;; TODO: regexp spec detect
+                   (let* ((time-range (split-string
+                                       (buffer-substring-no-properties (region-beginning) (region-end))
+                                       " -- "))
+                          (timestamp-begin (car time-range))
+                          (timestamp-end (cadr time-range)))
+                     (list
+                      (read-file-name "FFmpeg input filename: ")
+                      timestamp-begin
+                      timestamp-end
+                      (read-file-name "FFmpeg output filename: ")))
+                 (list
+                  (read-file-name "FFmpeg input filename: ")
+                  (read-string "FFmpeg start timestamp: ")
+                  (read-string "FFmpeg end timestamp: ")
+                  (read-file-name "FFmpeg output filename: "))))
+  (deactivate-mark)
   (let ((input-type (file-name-extension input-filename))
         (output-type (file-name-extension output-filename)))
     (if output-type
         ;; output filename specified video file extension.
         (if (string-equal output-type input-type) ; if output extension is same as input
-            output-filename ; keep output original extension
+            output-filename             ; keep output original extension
           (if (yes-or-no-p "Whether keep output video format extension? ")
               output-filename
             (setq output-filename (format "%s.%s" (file-name-sans-extension output-filename) input-type))))
