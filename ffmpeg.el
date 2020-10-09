@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-10-08 19:20:50 stardiviner>
+;;; Time-stamp: <2020-10-09 22:19:18 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1") (notifications "1.2"))
@@ -62,9 +62,10 @@
 ;; (ffmpeg--subtract-timestamps "00:11:25" "00:12:12")
 
 (defun ffmpeg-cut-clip (input-filename start-timestamp end-timestamp output-filename)
-  "Cut clip of media INPUT-FILENAME between START-TIMESTAMP END-TIMESTAMP and output to OUTPUT-FILENAME."
+  "Cut clip of media INPUT-FILENAME between START-TIMESTAMP END-TIMESTAMP and output to OUTPUT-FILENAME.
+
+Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45."
   (interactive (if (region-active-p)
-                   ;; 00:17:23 -- 00:21:45
                    ;; TODO: regexp spec detect
                    (let* ((time-range (split-string
                                        (buffer-substring-no-properties (region-beginning) (region-end))
