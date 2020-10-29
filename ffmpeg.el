@@ -1,9 +1,9 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-10-29 10:59:58 stardiviner>
+;;; Time-stamp: <2020-10-29 11:08:29 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
-;; Package-Requires: ((emacs "25.1") (notifications "1.2"))
+;; Package-Requires: ((emacs "25.1") (notifications "1.2") (transient "0.1.0"))
 ;; Package-Version: 0.1
 ;; Keywords: multimedia
 ;; homepage: https://github.com/stardiviner/ffmpeg.el
@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'notifications)
+(require 'transient)
 
 (defvar ffmpeg--output-filename nil
   "A variable to store the command output filename which used in notification.")
@@ -125,6 +126,13 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
           :title "Emacs ffmpeg.el"
           :body msg)
          (message msg))))))
+
+(define-transient-command ffmpeg-transient ()
+  "ffmpeg transient commands"
+  ["Video"
+   ("c" "Cut video clip" ffmpeg-cut-clip)]
+  ["Audio"
+   ("c" "Cut audio clip" ffmpeg-cut-clip)])
 
 
 
