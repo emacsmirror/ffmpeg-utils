@@ -1,6 +1,6 @@
 ;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
-;;; Time-stamp: <2020-10-09 22:19:18 stardiviner>
+;;; Time-stamp: <2020-10-29 10:59:58 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
 ;; Package-Requires: ((emacs "25.1") (notifications "1.2"))
@@ -31,16 +31,31 @@
 
 (require 'notifications)
 
-(defun ffmpeg--run-command (arglist)
-  "Construct ffmpeg command with ARGLIST and BODY."
+(defvar ffmpeg--output-filename nil
+  "A variable to store the command output filename which used in notification.")
+
+(defcustom ffmpeg-notification-function 'ffmpeg-notification-default
+  "Specify the ffmpeg command process sentinel function."
+  :type 'function
+  :safe #'functionp
+  :group 'ffmpeg)
+
+(defun ffmpeg-notification-default (proc event)
+  "The default ffmpeg command process sentinel notification function."
+  (setq mode-line-process nil) ; remove mode-line-process indicator.
+  (let ((msg (format "ffmpeg.el process finished output: %s" ffmpeg--output-filename)))
+    (notifications-notify
+     :title "Emacs ffmpeg.el"
+     :body msg)
+    (message msg)))
+
+(defun ffmpeg--run-command (arglist sentinel-func)
+  "Construct ffmpeg command with ARGLIST, SENTINEL-FUNC and BODY."
   (make-process
    :name "ffmpeg"
    :command (append '("ffmpeg") arglist) ; <------------- problem here
    :buffer "*ffmpeg*"
-   :sentinel (lambda (_ __)
-               (setq mode-line-process nil)
-               (notifications-notify :title "ffmpeg.el" :body "ffmpeg cut process finished")
-               (message "FFmpeg process finished."))))
+   :sentinel (or sentinel-func ffmpeg-notification-function)))
 
 (defun ffmpeg-mode-line-running-indicator (msg)
   "Display a running indicator on mode-line."
@@ -50,7 +65,7 @@
                             'font-lock-face 'mode-line-highlight)))
   (force-mode-line-update t))
 
-;;; NOTE Because ffmpeg command option "-t" accept seconds like 57 as value.
+;;; ffmpeg command option "-t" accept seconds like 57 as value.
 (defun ffmpeg--subtract-timestamps (start-timestamp end-timestamp)
   "Subtract END-TIMESTAMP with START-TIMESTAMP."
   (time-subtract
@@ -84,6 +99,7 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
                   (read-file-name "FFmpeg output filename: "))))
   (deactivate-mark)
   (ffmpeg-mode-line-running-indicator "ffmpeg cut video clip")
+  (setq ffmpeg--output-filename output-filename)
   (let ((input-type (file-name-extension input-filename))
         (output-type (file-name-extension output-filename)))
     (if output-type
@@ -101,7 +117,14 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
        "-ss" ,start-timestamp
        "-t" ,(number-to-string (ffmpeg--subtract-timestamps start-timestamp end-timestamp))
        "-codec" "copy"
-       ,output-filename))))
+       ,output-filename)
+     (lambda (_ __)
+       (setq mode-line-process nil) ; remove mode-line-process indicator.
+       (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory output-filename))))
+         (notifications-notify
+          :title "Emacs ffmpeg.el"
+          :body msg)
+         (message msg))))))
 
 
 
