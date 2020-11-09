@@ -98,7 +98,7 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
                   (read-string "FFmpeg start timestamp: ")
                   (read-string "FFmpeg end timestamp: ")
                   (read-file-name "FFmpeg output filename: "))))
-  (deactivate-mark)
+  (when (region-active-p) (deactivate-mark) (forward-line) (newline) (forward-line -1))
   (ffmpeg-mode-line-running-indicator "ffmpeg cut video clip")
   (setq ffmpeg--output-filename output-filename)
   (let ((input-type (file-name-extension input-filename))
