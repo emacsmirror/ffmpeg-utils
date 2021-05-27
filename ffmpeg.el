@@ -70,10 +70,12 @@
 (defun ffmpeg--subtract-timestamps (start-timestamp end-timestamp)
   "Subtract END-TIMESTAMP with START-TIMESTAMP."
   (time-subtract
-   (encode-time (parse-time-string
-                 (concat "2020-01-01T" end-timestamp)))
-   (encode-time (parse-time-string
-                 (concat "2020-01-01T" start-timestamp)))))
+   (encode-time
+    (parse-time-string    ; (SECOND MINUTE HOUR DAY MONTH YEAR IGNORED DST ZONE)
+     (concat "2020-01-01" " " end-timestamp)))
+   (encode-time
+    (parse-time-string
+     (concat "2020-01-01" " " start-timestamp)))))
 
 ;; (ffmpeg--subtract-timestamps "00:11:25" "00:12:12")
 
@@ -120,7 +122,7 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
        "-codec" "copy"
        ,output-filename)
      (lambda (_ __)
-       (setq mode-line-process nil) ; remove mode-line-process indicator.
+       (setq mode-line-process nil)     ; remove mode-line-process indicator.
        (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory output-filename))))
          (notifications-notify
           :title "Emacs ffmpeg.el"
