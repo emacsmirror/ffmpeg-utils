@@ -1,4 +1,4 @@
-;;; ffmpeg.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
+;;; ffmpeg-utils.el --- FFmpeg command utilities wrappers -*- lexical-binding: t; -*-
 
 ;;; Time-stamp: <2020-10-29 11:08:29 stardiviner>
 
@@ -6,14 +6,14 @@
 ;; Package-Requires: ((emacs "25.1") (transient "0.1.0"))
 ;; Package-Version: 0.1
 ;; Keywords: multimedia
-;; homepage: https://github.com/stardiviner/ffmpeg.el
+;; homepage: https://github.com/stardiviner/ffmpeg-utils.el
 
-;; ffmpeg.el is free software; you can redistribute it and/or modify it
+;; ffmpeg-utils.el is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
 ;;
-;; ffmpeg.el is distributed in the hope that it will be useful, but WITHOUT
+;; ffmpeg-utils.el is distributed in the hope that it will be useful, but WITHOUT
 ;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 ;; or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
 ;; License for more details.
@@ -47,19 +47,19 @@
   (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory ffmpeg--output-filename))))
     (cond
      ((and (eq system-type 'gnu/linux) (featurep 'dbus) (fboundp 'notifications-notify))
-      (notifications-notify :title "Emacs ffmpeg.el" :body msg))
+      (notifications-notify :title "Emacs ffmpeg-utils.el" :body msg))
      ((and (eq system-type 'darwin) (fboundp 'osx-lib-notify2))
-      (osx-lib-notify2 "Emacs ffmpeg.el" msg))
+      (osx-lib-notify2 "Emacs ffmpeg-utils.el" msg))
      ((and (eq system-type 'darwin) (fboundp 'ns-do-applescript))
       (ns-do-applescript
        (format "display notification \"%s\" with title \"%s\""
-               msg "Emacs ffmpeg.el")))
+               msg "Emacs ffmpeg-utils.el")))
      ((and (eq system-type 'darwin) (executable-find "osascript"))
       (start-process
        "emacs-timer-notification" nil
        "osascript" "-e"
-       (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg.el")))
-     (t (message (format "Emacs ffmpeg.el: %s" msg))))))
+       (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg-utils.el")))
+     (t (message (format "Emacs ffmpeg-utils.el: %s" msg))))))
 
 (defun ffmpeg--run-command (arglist)
   "Construct ffmpeg command with ARGLIST, SENTINEL-FUNC and BODY."
@@ -146,6 +146,6 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
 
 
 
-(provide 'ffmpeg)
+(provide 'ffmpeg-utils)
 
-;;; ffmpeg.el ends here
+;;; ffmpeg-utils.el ends here
