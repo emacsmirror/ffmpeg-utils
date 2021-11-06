@@ -102,12 +102,14 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
                           (timestamp-begin (car time-range))
                           (timestamp-end (cadr time-range)))
                      (list
-                      (substring-no-properties
-                       (read-file-name "FFmpeg input filename: " nil nil 'confirm-after-completion))
+                      (expand-file-name
+                       (substring-no-properties
+                        (read-file-name "FFmpeg input filename: " nil nil 'confirm-after-completion)))
                       timestamp-begin
                       timestamp-end
-                      (substring-no-properties
-                       (read-file-name "FFmpeg output filename: "))))
+                      (expand-file-name
+                       (substring-no-properties
+                        (read-file-name "FFmpeg output filename: ")))))
                  (list
                   (read-file-name "FFmpeg input filename: ")
                   (read-string "FFmpeg start timestamp: ")
