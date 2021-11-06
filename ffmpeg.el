@@ -43,20 +43,31 @@
 
 (defun ffmpeg-notification-default (proc event)
   "The default ffmpeg command process sentinel notification function."
-  (setq mode-line-process nil) ; remove mode-line-process indicator.
-  (let ((msg (format "ffmpeg.el process finished output: %s" ffmpeg--output-filename)))
-    (notifications-notify
-     :title "Emacs ffmpeg.el"
-     :body msg)
-    (message msg)))
+  (setq mode-line-process nil)     ; remove mode-line-process indicator.
+  (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory output-filename))))
+    (cond
+     ((and (eq system-type 'gnu/linux) (featurep 'dbus) (fboundp 'notifications-notify))
+      (notifications-notify :title "Emacs ffmpeg.el" :body msg))
+     ((and (eq system-type 'darwin) (fboundp 'osx-lib-notify2))
+      (osx-lib-notify2 "Emacs ffmpeg.el" msg))
+     ((and (eq system-type 'darwin) (fboundp 'ns-do-applescript))
+      (ns-do-applescript
+       (format "display notification \"%s\" with title \"%s\""
+               msg "Emacs ffmpeg.el")))
+     ((and (eq system-type 'darwin) (executable-find "osascript"))
+      (start-process
+       "emacs-timer-notification" nil
+       "osascript" "-e"
+       (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg.el")))
+     (t (message (format "Emacs ffmpeg.el: %s" msg))))))
 
-(defun ffmpeg--run-command (arglist sentinel-func)
+(defun ffmpeg--run-command (arglist)
   "Construct ffmpeg command with ARGLIST, SENTINEL-FUNC and BODY."
   (make-process
    :name "ffmpeg"
    :command (append '("ffmpeg") arglist) ; <------------- problem here
    :buffer "*ffmpeg*"
-   :sentinel (or sentinel-func ffmpeg-notification-function)))
+   :sentinel ffmpeg-notification-function))
 
 (defun ffmpeg-mode-line-running-indicator (msg)
   "Display a running indicator on mode-line."
@@ -122,25 +133,7 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
        "-ss" ,start-timestamp
        "-t" ,(number-to-string (ffmpeg--subtract-timestamps start-timestamp end-timestamp))
        "-codec" "copy"
-       ,output-filename)
-     (lambda (_ __)
-       (setq mode-line-process nil)     ; remove mode-line-process indicator.
-       (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory output-filename))))
-         (cond
-          ((and (eq system-type 'gnu/linux) (featurep 'dbus) (fboundp 'notifications-notify))
-           (notifications-notify :title "Emacs ffmpeg.el" :body msg))
-          ((and (eq system-type 'darwin) (fboundp 'osx-lib-notify2))
-           (osx-lib-notify2 "Emacs ffmpeg.el" msg))
-          ((and (eq system-type 'darwin) (fboundp 'ns-do-applescript))
-           (ns-do-applescript
-            (format "display notification \"%s\" with title \"%s\""
-                    msg "Emacs ffmpeg.el")))
-          ((and (eq system-type 'darwin) (executable-find "osascript"))
-           (start-process
-            "emacs-timer-notification" nil
-            "osascript" "-e"
-            (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg.el")))
-          (t (message (format "Emacs ffmpeg.el: %s" msg)))))))))
+       ,output-filename))))
 
 (define-transient-command ffmpeg-transient ()
   "ffmpeg transient commands"
