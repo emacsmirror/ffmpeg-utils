@@ -126,10 +126,21 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
      (lambda (_ __)
        (setq mode-line-process nil)     ; remove mode-line-process indicator.
        (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory output-filename))))
-         (notifications-notify
-          :title "Emacs ffmpeg.el"
-          :body msg)
-         (message msg))))))
+         (cond
+          ((and (eq system-type 'gnu/linux) (featurep 'dbus) (fboundp 'notifications-notify))
+           (notifications-notify :title "Emacs ffmpeg.el" :body msg))
+          ((and (eq system-type 'darwin) (fboundp 'osx-lib-notify2))
+           (osx-lib-notify2 "Emacs ffmpeg.el" msg))
+          ((and (eq system-type 'darwin) (fboundp 'ns-do-applescript))
+           (ns-do-applescript
+            (format "display notification \"%s\" with title \"%s\""
+                    msg "Emacs ffmpeg.el")))
+          ((and (eq system-type 'darwin) (executable-find "osascript"))
+           (start-process
+            "emacs-timer-notification" nil
+            "osascript" "-e"
+            (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg.el")))
+          (t (message (format "Emacs ffmpeg.el: %s" msg)))))))))
 
 (define-transient-command ffmpeg-transient ()
   "ffmpeg transient commands"
