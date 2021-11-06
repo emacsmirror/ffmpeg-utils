@@ -1,0 +1,23 @@
+* Intro
+
+A ffmpeg command utils wrapper for Emacs.
+
+* Installation
+
+* Usage
+
+** ffmpeg cut media file clip based on region selected start and end timestamps
+
+For example, you have text like this:
+
+#+begin_example
+00:20:13 -- 01:04:15
+#+end_example
+
+Use region to select upper start/end timestamp part, then press command =[M-x ffmpeg-cut-clip]= to
+select corresponding files following interactive prompt. It will invoke command-line =ffmpeg= to cut
+media file clip and save to specific output file path.
+
+This will save manually input command every time and calculating ffmpeg timestamp length.
+
+
