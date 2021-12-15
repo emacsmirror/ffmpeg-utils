@@ -49,6 +49,7 @@
      ((and (eq system-type 'gnu/linux) (featurep 'dbus) (fboundp 'notifications-notify))
       (notifications-notify :title "Emacs ffmpeg-utils.el" :body msg))
      ((and (eq system-type 'darwin) (fboundp 'osx-lib-notify2))
+      (require 'osx-lib)
       (osx-lib-notify2 "Emacs ffmpeg-utils.el" msg))
      ((and (eq system-type 'darwin) (fboundp 'ns-do-applescript))
       (ns-do-applescript
