@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'notifications)
+(require 'alert)
 (require 'transient)
 
 (defvar ffmpeg--output-filename nil
@@ -45,22 +46,27 @@
   "The default ffmpeg command process sentinel notification function."
   (setq mode-line-process nil)     ; remove mode-line-process indicator.
   (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory ffmpeg--output-filename))))
-    (cond
-     ((and (eq system-type 'gnu/linux) (featurep 'dbus) (fboundp 'notifications-notify))
-      (notifications-notify :title "Emacs ffmpeg-utils.el" :body msg))
-     ((and (eq system-type 'darwin) (fboundp 'osx-lib-notify2))
-      (require 'osx-lib)
-      (osx-lib-notify2 "Emacs ffmpeg-utils.el" msg))
-     ((and (eq system-type 'darwin) (fboundp 'ns-do-applescript))
-      (ns-do-applescript
-       (format "display notification \"%s\" with title \"%s\""
-               msg "Emacs ffmpeg-utils.el")))
-     ((and (eq system-type 'darwin) (executable-find "osascript"))
-      (start-process
-       "emacs-timer-notification" nil
-       "osascript" "-e"
-       (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg-utils.el")))
-     (t (message (format "Emacs ffmpeg-utils.el: %s" msg))))))
+    (pcase system-type
+      ('gnu/linux
+       (cond
+        ((and (featurep 'dbus) (fboundp 'notifications-notify))
+         (notifications-notify :title "Emacs ffmpeg-utils.el" :body msg))))
+      ('darwin
+       (cond
+        ((featurep 'alert)
+         (alert msg :title "Emacs ffmpeg-utils.el"))
+        ((and (featurep 'osx-lib) (bound-and-true-p osx-lib-start-terminal))
+         (osx-lib-notify2 "Emacs ffmpeg-utils.el" msg))
+        ((fboundp 'ns-do-applescript)
+         (ns-do-applescript
+          (format "display notification \"%s\" with title \"%s\""
+                  msg "Emacs ffmpeg-utils.el")))
+        ((executable-find "osascript")
+         (start-process
+          "emacs-timer-notification" nil
+          "osascript" "-e"
+          (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg-utils.el")))))
+      (t (message (format "Emacs ffmpeg-utils.el: %s" msg))))))
 
 (defun ffmpeg--run-command (arglist)
   "Construct ffmpeg command with ARGLIST, SENTINEL-FUNC and BODY."
