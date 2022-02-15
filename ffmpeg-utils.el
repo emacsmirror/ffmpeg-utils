@@ -6,7 +6,7 @@
 ;; Package-Requires: ((emacs "25.1") (transient "0.1.0"))
 ;; Package-Version: 0.1
 ;; Keywords: multimedia
-;; homepage: https://github.com/stardiviner/ffmpeg-utils.el
+;; homepage: https://repo.or.cz/ffmpeg-utils.git
 
 ;; ffmpeg-utils.el is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
