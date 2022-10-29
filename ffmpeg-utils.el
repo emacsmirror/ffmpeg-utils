@@ -66,7 +66,7 @@
           "emacs-timer-notification" nil
           "osascript" "-e"
           (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg-utils.el")))))
-      (t (message (format "Emacs ffmpeg-utils.el: %s" msg))))))
+      (_ (message (format "Emacs ffmpeg-utils.el: %s" msg))))))
 
 (defun ffmpeg--run-command (arglist)
   "Construct ffmpeg command with ARGLIST, SENTINEL-FUNC and BODY."
