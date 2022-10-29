@@ -102,7 +102,7 @@
 
 Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45."
   (interactive (if (region-active-p)
-                   ;; TODO: regexp spec detect
+                   ;; regexp spec detect "00:17:23 -- 00:21:45"
                    (let* ((time-range (split-string
                                        (buffer-substring-no-properties (region-beginning) (region-end))
                                        " -- "))
