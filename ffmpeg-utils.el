@@ -54,7 +54,11 @@
       ('darwin
        (cond
         ((featurep 'alert)
-         (alert msg :title "Emacs ffmpeg-utils.el"))
+         (let ((msg "Emacs ffmpeg-utils.el process finished."))
+           (cl-case system-type
+             (darwin
+              (ns-do-applescript (format "say \"%s\"" msg))))
+           (alert msg :title "Emacs ffmpeg-utils.el")))
         ((and (featurep 'osx-lib) (bound-and-true-p osx-lib-start-terminal))
          (osx-lib-notify2 "Emacs ffmpeg-utils.el" msg))
         ((fboundp 'ns-do-applescript)
