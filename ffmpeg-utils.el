@@ -152,12 +152,12 @@ Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45
        "-codec" "copy"
        ,output-filename))))
 
-(define-transient-command ffmpeg-transient ()
-  "ffmpeg transient commands"
-  ["Video"
-   ("c" "Cut video clip" ffmpeg-cut-clip)]
-  ["Audio"
-   ("c" "Cut audio clip" ffmpeg-cut-clip)])
+;; (define-transient-command ffmpeg-transient ()
+;;   "ffmpeg transient commands"
+;;   ["Video"
+;;    ("c" "Cut video clip" ffmpeg-cut-clip)]
+;;   ["Audio"
+;;    ("c" "Cut audio clip" ffmpeg-cut-clip)])
 
 
 
