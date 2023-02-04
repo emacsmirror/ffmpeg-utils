@@ -42,7 +42,7 @@
   :safe #'functionp
   :group 'ffmpeg)
 
-(defun ffmpeg-notification-default (proc event)
+(defun ffmpeg-notification-default (&optional proc event)
   "The default ffmpeg command process sentinel notification function."
   (setq mode-line-process nil)     ; remove mode-line-process indicator.
   (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory ffmpeg--output-filename))))
