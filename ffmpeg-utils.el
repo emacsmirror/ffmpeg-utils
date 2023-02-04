@@ -66,10 +66,13 @@
           (format "display notification \"%s\" with title \"%s\""
                   msg "Emacs ffmpeg-utils.el")))
         ((executable-find "osascript")
-         (start-process
-          "emacs-timer-notification" nil
-          "osascript" "-e"
-          (format "'display notification \"%s\" with title \"title\"'" msg "Emacs ffmpeg-utils.el")))))
+         ;; (start-process
+         ;;  "emacs-timer-notification" nil
+         ;;  "osascript"
+         ;;  (format "-e 'display notification \"%s\" with title \"%s\"'" msg "Emacs ffmpeg-utils.el"))
+         (shell-command
+          (format "osascript -e 'display notification \"%s\" with title \"%s\"'"
+                  "yes" "Emacs ffmpeg-utils.el")))))
       (_ (message (format "Emacs ffmpeg-utils.el: %s" msg))))))
 
 (defun ffmpeg--run-command (arglist)
