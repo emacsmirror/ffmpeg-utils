@@ -3,7 +3,7 @@
 ;;; Time-stamp: <2020-10-29 11:08:29 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
-;; Package-Requires: ((emacs "25.1") (transient "0.1.0"))
+;; Package-Requires: ((emacs "25.1") (transient "0.1.0") (osx-lib "0.1"))
 ;; Package-Version: 0.1
 ;; Keywords: multimedia
 ;; homepage: https://repo.or.cz/ffmpeg-utils.git
@@ -60,6 +60,7 @@
               (ns-do-applescript (format "say \"%s\"" msg))))
            (alert msg :title "Emacs ffmpeg-utils.el")))
         ((and (featurep 'osx-lib) (bound-and-true-p osx-lib-start-terminal))
+         (require 'osx-lib)
          (osx-lib-notify2 "Emacs ffmpeg-utils.el" msg))
         ((fboundp 'ns-do-applescript)
          (ns-do-applescript
