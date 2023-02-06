@@ -3,7 +3,7 @@
 ;;; Time-stamp: <2020-10-29 11:08:29 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
-;; Package-Requires: ((emacs "25.1") (transient "0.1.0") (osx-lib "0.1"))
+;; Package-Requires: ((emacs "25.1") (alert "1.2") (transient "0.1.0") (osx-lib "0.1"))
 ;; Package-Version: 0.1
 ;; Keywords: multimedia
 ;; homepage: https://repo.or.cz/ffmpeg-utils.git
