@@ -45,7 +45,8 @@
 (defun ffmpeg-utils-notification-default (&optional proc event)
   "The ffmpeg command process sentinel notification function with args PROC, EVENT."
   (setq mode-line-process nil)     ; remove mode-line-process indicator.
-  (let ((msg (format "ffmpeg cut %s finished" (file-name-nondirectory ffmpeg-utils--output-filename))))
+  (let ((msg (format "ffmpeg cut file: [%s] finished.\nprocess: [%s], status: [%s]."
+                     proc event (file-name-nondirectory ffmpeg-utils--output-filename))))
     (pcase system-type
       ('gnu/linux
        (cond
@@ -106,9 +107,10 @@
 ;; (ffmpeg-utils--subtract-timestamps "00:11:25" "00:12:12")
 
 (defun ffmpeg-utils-cut-clip (input-filename start-timestamp end-timestamp output-filename)
-  "Clip INPUT-FILENAME on START-TIMESTAMP END-TIMESTAMP, output to OUTPUT-FILENAME.
+  "Clip INPUT-FILENAME on START-TIMESTAMP END-TIMESTAMP, output OUTPUT-FILENAME.
 
-Support read timestamp begin/end range in format like this: 00:17:23 -- 00:21:45."
+Support read timestamp begin/end range in format like this:
+00:17:23 -- 00:21:45."
   (interactive
    (if (region-active-p)
        ;; regexp spec detect "00:17:23 -- 00:21:45"
