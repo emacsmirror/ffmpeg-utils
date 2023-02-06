@@ -62,7 +62,7 @@
            (alert msg :title "Emacs ffmpeg-utils.el")))
         ((and (featurep 'osx-lib) (bound-and-true-p osx-lib-start-terminal))
          (require 'osx-lib)
-         (osx-lib-notify2 "Emacs ffmpeg-utils.el" msg))
+         (osx-lib-notify3 "Emacs" "ffmpeg-utils.el" msg))
         ((fboundp 'ns-do-applescript)
          (ns-do-applescript
           (format "display notification \"%s\" with title \"%s\""
