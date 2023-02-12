@@ -3,7 +3,7 @@
 ;;; Time-stamp: <2020-10-29 11:08:29 stardiviner>
 
 ;; Authors: stardiviner <numbchild@gmail.com>
-;; Package-Requires: ((emacs "25.1") (alert "1.2") (transient "0.1.0") (osx-lib "0.1"))
+;; Package-Requires: ((emacs "25.1") (alert "1.2") (transient "0.1.0"))
 ;; Version: 0.1
 ;; Keywords: multimedia
 ;; homepage: https://repo.or.cz/ffmpeg-utils.git
@@ -33,6 +33,9 @@
 (require 'alert)
 (require 'transient)
 
+(declare-function ns-do-applescript "ext:macos-builtin")
+(declare-function osx-lib-notify3 "osx-lib.el")
+
 (defvar ffmpeg-utils--output-filename nil
   "A variable to store the command output filename which used in notification.")
 
@@ -60,8 +63,7 @@
              (darwin
               (ns-do-applescript (format "say \"%s\"" msg))))
            (alert msg :title "Emacs ffmpeg-utils.el")))
-        ((and (featurep 'osx-lib) (bound-and-true-p osx-lib-start-terminal))
-         (require 'osx-lib)
+        ((require 'osx-lib nil t)
          (osx-lib-notify3 "Emacs" "ffmpeg-utils.el" msg))
         ((fboundp 'ns-do-applescript)
          (ns-do-applescript
