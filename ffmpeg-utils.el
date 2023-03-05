@@ -34,6 +34,8 @@
 (require 'transient)
 
 (declare-function ns-do-applescript "ext:macos-builtin")
+(unless (fboundp 'do-applescript)
+  (defalias 'do-applescript 'ns-do-applescript))
 (declare-function osx-lib-notify3 "osx-lib.el")
 
 (defvar ffmpeg-utils--output-filename nil
@@ -60,13 +62,12 @@
         ((featurep 'alert)
          (let ((msg "Emacs ffmpeg-utils.el process finished."))
            (cl-case system-type
-             (darwin
-              (ns-do-applescript (format "say \"%s\"" msg))))
+             (darwin (do-applescript (format "say \"%s\"" msg))))
            (alert msg :title "Emacs ffmpeg-utils.el")))
         ((require 'osx-lib nil t)
          (osx-lib-notify3 "Emacs" "ffmpeg-utils.el" msg))
-        ((fboundp 'ns-do-applescript)
-         (ns-do-applescript
+        ((fboundp 'do-applescript)
+         (do-applescript
           (format "display notification \"%s\" with title \"%s\""
                   msg "Emacs ffmpeg-utils.el")))
         ((executable-find "osascript")
